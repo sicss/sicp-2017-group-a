@@ -260,9 +260,9 @@ opposite sign" a b)))))
 
 (define (length l)
   (define (length-iter l n)
-    (if (null? l)
-        n
-        (length-iter (cdr l) (+ n 1))))
+    (cond ((null? l) n)
+          ((not (pair? l)) (+ n 1))
+          (else (length-iter (cdr l) (+ n 1)))))
   (length-iter l 0))
 
 (define (last-pair l)
@@ -283,7 +283,8 @@ opposite sign" a b)))))
       (cons m (iter (- m 1)))))
   (reverse (iter n)))
 
-(define (no-more? list) (if (null? list) #t (null? (car list))))
+(define (no-more? list) (null? list))
+;(define (no-more? list) (if (null? list) #t (null? (car list))))
 (define (first-denomination coin-values)
   (car coin-values))
 (define (except-first-denomination coin-values)
@@ -335,3 +336,73 @@ opposite sign" a b)))))
 ;  (if (list? tree)
 ;      (t-map (lambda (tr) (t-map tr f)) f)
 ;      (f tree)))
+
+(define (for-each f list)
+  (define (iter list)
+    (if (no-more? list)
+        null
+        ((f (car list)) (iter (cdr list)))
+    )
+  )
+  (iter list)
+)
+
+(define (count-leaves x)
+  (cond ((null? x) 0)
+        ((not (pair? x)) 1)
+        (else (+ (count-leaves (car x)) (count-leaves (cdr x))))))
+
+(define (deep-reverse l)
+  (define num (length l))
+  (define (iter l new-l n)
+    (if (= n num)
+        new-l
+        (iter l (cons (if (pair? l) (deep-reverse (get-list l n)) l) new-l) (+ n 1))))
+  (if (pair? l) (iter l null 0) l)
+)
+
+(define (add-list a b)
+  (define (iter a b)
+    (if (null? a)
+      b
+      (iter (cdr a) (cons (car a) b))))
+  (iter (reverse a) b)
+)
+(define (remove-null l)
+  (define (iter l new-l)
+    (if (null? l)
+        new-l
+        (if (null? (car l))
+          (remove-null (cdr l))
+          (add-list (list (car l)) (remove-null (cdr l))))))
+  (iter l null)
+  )
+
+(define (fringe l)
+  (define (iter l new-l)
+    (if (pair? l)
+      (add-list (iter (car l) new-l) (iter (cdr l) new-l))
+      (cons l new-l))
+  )
+  (remove-null (iter l null))
+)
+
+(define x (list (list 1 2) (list 3 4)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
